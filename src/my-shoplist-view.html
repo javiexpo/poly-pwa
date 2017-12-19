@@ -1,0 +1,100 @@
+<!-- Load the Polymer.Element base class -->
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-list/iron-list.html">
+
+<dom-module id="my-shoplist-view">
+  <!-- Defines the element's style and local DOM -->
+  <template>
+    <style>
+      :host {
+        height: 100vh;
+        display: block;
+        padding: 16px;
+      }
+
+      iron-list {
+        flex: 1 1 auto;
+      }
+
+      .card {
+        padding: 16px;
+        margin-bottom: 10px;
+        color: #757575;
+        border-radius: 5px;
+        background-color: #fff;
+        box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
+      }
+
+      .circle {
+        display: inline-block;
+        width: 64px;
+        height: 64px;
+        text-align: center;
+        color: #555;
+        border-radius: 50%;
+        background: #ddd;
+        font-size: 30px;
+        line-height: 64px;
+      }
+
+      h1 {
+        margin: 16px 0;
+        color: #212121;
+        font-size: 22px;
+      }
+    </style>
+
+    <iron-list items="[[itemsToShop]]" as="item" scroll-target="document">
+      <template>
+        <div class="card">
+          <div class="circle">{{item.index}}</div>
+          <h1>{{item.name}}</h1>
+        </div>
+      </template>
+    </iron-list>
+    
+
+  </template>
+  <script>
+    // Your new element extends the Polymer.Element base class
+    class MyShoplistView extends Polymer.Element {
+      static get is() { return 'my-shoplist-view'; }
+
+      constructor() {
+        super();
+      }
+
+      static get properties() {
+        return {
+          itemsToShop: {
+            type: Array,
+            notify: true,
+            value: function() {
+              let newArray = [];
+              for (let i = 0; i < 10; i++) {
+                let newItem = {
+                  index : i, 
+                  name: 'Item ' + i 
+                };
+                newArray.push(newItem);
+              }
+              return newArray; 
+            }
+          },
+        }
+      }
+
+      _addItemToShop(item) {
+        this.push('itemsToShop', item);
+      }
+
+      _removeItemToShop(item) {
+        var index = this.itemsToShop.indexOf(item);
+        this.splice('itemsToShop', index, 1);
+      }
+
+    }
+    //Now, register your new custom element so the browser can use it
+    customElements.define(MyShoplistView.is, MyShoplistView);
+  </script>
+</dom-module>
