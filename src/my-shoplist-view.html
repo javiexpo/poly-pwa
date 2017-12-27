@@ -2,14 +2,17 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 
 <dom-module id="my-shoplist-view">
   <!-- Defines the element's style and local DOM -->
   <template>
     <style>
       :host {
-        height: 100%;
-        display: block;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
         padding: 16px;
       }
 
@@ -17,54 +20,52 @@
         width: 100%;
         height: 100%;
       }
+
       iron-list {
         flex: 1 1 auto;
-        padding-top: 16px;
-        padding-bottom: 16px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
+
+      iron-list {
+        --iron-list-items-container: {
+          margin: auto;
+        };
       }
 
       .card {
         padding: 10px;
-        margin-bottom: 16px;
         color: #757575;
-        border-radius: 5px;
+        border-radius:5px;
         background-color: #fff;
         box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 1px 5px 0 rgba(0, 0, 0, 0.12), 0 3px 1px -2px rgba(0, 0, 0, 0.2);
       }
 
-      .circle {
-        display: inline-block;
-        width: 64px;
-        height: 64px;
-        text-align: center;
-        color: #555;
-        border-radius: 50%;
-        background: #ddd;
-        font-size: 30px;
-        line-height: 64px;
-      }
-
       h1 {
         color: #212121;
-        font-size: 20px;
+        font-size: 18px;
       }
+
+      paper-fab {
+        position: fixed;
+        right: 25px;
+        bottom: 30px;          
+      }
+
     </style>
 
     <iron-scroll-threshold on-lower-threshold="_loadMoreData" id="scrollTheshold">
-      <iron-list items="[[itemsToShop]]" as="item" scroll-target="document">
-        <template>
-          <div class="card">
-            <h1>{{item.name}}</h1>
-          </div>
-        </template>
+      <iron-list id="itemsList" items="[[itemsToShop]]" as="item" scroll-target="scrollTheshold" selected-items="{{selectedItems}}" selection-enabled>
+          <template>
+            <div class="card" tabindex$="[[tabIndex]]" on-swipe-left="_removeItemToShop">
+              <h1>{{item.item.name}}</h1>
+            </div>
+          </template>
       </iron-list>
     </iron-scroll-threshold>
 
-    <!-- this element will load more data when the user scrolls down and reached the lower threshold -->
-    <!-- <iron-scroll-threshold id="scrollTheshold"
-      lower-threshold="500"
-      on-lower-threshold="_load"
-      scroll-target="document"></iron-scroll-threshold> -->
+    <paper-fab icon="add" title="heart" on-tap="_showAddForm"></paper-fab>
+
     
   </template>
   <script>
@@ -82,28 +83,45 @@
             type: Array,
             notify: true,
             value: function() {
-              let newArray = [];
-              for (let i = 0; i < 10; i++) {
-                let newItem = {
-                  index : i, 
-                  name: 'Item ' + i 
-                };
-                newArray.push(newItem);
-              }
-              return newArray; 
+              return this._dummyData();
             }
           },
+          selectedItems: {
+            type: Object
+          }
         }
+      }
+
+      _dummyData() {
+        let newArray = [];
+        for (let i = 0; i < 10; i++) {
+          let newItem = {
+            index : i,
+            selected: false,
+            tabIndex : -1,
+            item: {
+              name: 'Item ' + i
+            } 
+          }
+          newArray.push(newItem);
+        }
+        return newArray;
       }
 
       _loadMoreData() {
         console.log('_loadMoreData was triggered');
         console.log('this.itemsToShop.size ' + this.itemsToShop.length);
+        if(this.itemsToShop.length >= 50)
+          return;
         for (let i = 0; i < 10; i++) {
           let idx = this.itemsToShop.length + 1;
           let newItem = {
-            index : idx, 
-            name: 'Item ' + idx 
+            index : idx,
+            selected: false,
+            tabIndex : -1,
+            item: {
+              name: 'Item ' + idx
+            } 
           };
           this._addItemToShop(newItem);
         }
@@ -118,9 +136,13 @@
         this.push('itemsToShop', item);
       }
 
-      _removeItemToShop(item) {
-        var index = this.itemsToShop.indexOf(item);
+      _removeItemToShop(e) {
+        var index = this.itemsToShop.indexOf(e.model.item);
         this.splice('itemsToShop', index, 1);
+      }
+
+      _showAddForm(){
+        console.log('_showAddForm was called');
       }
 
     }
