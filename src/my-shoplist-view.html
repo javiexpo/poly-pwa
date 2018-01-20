@@ -4,6 +4,8 @@
 <link rel="import" href="../bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 
 <dom-module id="my-shoplist-view">
   <!-- Defines the element's style and local DOM -->
@@ -66,7 +68,15 @@
 
     <paper-fab icon="add" title="heart" on-tap="_showAddForm"></paper-fab>
 
-    
+    <paper-dialog id="addItemsDialog">
+      <h2>Add Item</h2>
+      <paper-input label='Which item do you want to add?' value='{{ latestItemToAdd }}' autofocus></paper-input>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Decline</paper-button>
+        <paper-button dialog-confirm on-tap="_addlatestItemToAdd">Accept</paper-button>
+      </div>
+    </paper-dialog>
+
   </template>
   <script>
     // Your new element extends the Polymer.Element base class
@@ -88,12 +98,16 @@
           },
           selectedItems: {
             type: Object
+          },
+          latestItemToAdd : {
+            type: String
           }
         }
       }
 
       _dummyData() {
         let newArray = [];
+        return newArray;
         for (let i = 0; i < 10; i++) {
           let newItem = {
             index : i,
@@ -111,7 +125,7 @@
       _loadMoreData() {
         console.log('_loadMoreData was triggered');
         console.log('this.itemsToShop.size ' + this.itemsToShop.length);
-        if(this.itemsToShop.length >= 50)
+        /*if(this.itemsToShop.length >= 10)
           return;
         for (let i = 0; i < 10; i++) {
           let idx = this.itemsToShop.length + 1;
@@ -129,7 +143,7 @@
         console.log('this.itemsToShop.size ' + this.itemsToShop.length);
         if(this.itemsToShop.length == 100) {
           this.$.scrollTheshold.lowerThreshold = -1;
-        }
+        }*/
       }
 
       _addItemToShop(item) {
@@ -142,7 +156,23 @@
       }
 
       _showAddForm(){
+        this.latestItemToAdd = '';
+        this.$.addItemsDialog.open();
         console.log('_showAddForm was called');
+      }
+
+      _addlatestItemToAdd(){
+        console.log('latestItemToAdd ' + this.latestItemToAdd);
+        let idx = this.itemsToShop.length + 1;
+          let newItem = {
+            index : idx,
+            selected: false,
+            tabIndex : -1,
+            item: {
+              name: this.latestItemToAdd
+            } 
+          };
+        this._addItemToShop(newItem);
       }
 
     }
